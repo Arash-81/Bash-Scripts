@@ -14,7 +14,8 @@ The script accepts the following options:
     -d <domain>: Specifies a single domain to monitor.
     -f <file>: Specifies a file containing a list of domains to monitor.
 
-### Note: You can use either the -d or -f option, but not both simultaneously.
+### Note: 
+You can use either the -d or -f option, but not both simultaneously.
 
 ### Network Information
 
@@ -52,7 +53,6 @@ This command will read the domain names from the domains.txt file and execute a 
     ./network_monitoring.sh -c 3 -d example.com
 
 This command will send 3 ping packets to the example.com domain instead of the default 5 packets.
-Cleanup
 
 The script creates a temporary file called domain_info to store ping output temporarily. This file is automatically deleted at the end of script execution.
 Conclusion
@@ -71,7 +71,7 @@ The while loop is used to loop through the command line options and arguments. I
 
 ### getPing function
 
-it runs a ping command with the given parameters (-c $ping_count $1) and redirects the output to a file called domain_info.
+It runs a ping command with the given parameters (-c $ping_count $1) and redirects the output to a file called domain_info.
 
 - packet_loss: extracted from the 6th column (field) of the line number count + 4 in the domain_info file. The % character is then removed using the sed command.
 
@@ -87,7 +87,7 @@ Finally, the function executes a database query to insert the extracted informat
 
 ## POSTGRESQL
 
-before running the code you should create a network database in psql and domain_info table with this structure:
+Before running the code you should create a network database in psql and a domain_info table with this structure:
     
     CREATE TABLE domain_info (
         id SERIAL PRIMARY KEY,
@@ -99,6 +99,36 @@ before running the code you should create a network database in psql and domain_
         avg_ping_time FLOAT NOT NULL
     );
 
-then you can access the datas with this query:
+### Note: 
+id and ping_time are added by default and there is no need to provide a value for them during insertion time.
+
+Then you can access the data with this query:
 
     select * from domain_info;
+
+## Automate monitoring
+
+You can write a service and timer for this bash to run continuously.
+
+### Service
+    [Unit]
+    Description=The domain monitoring service
+
+    [Service]
+    Type=oneshot
+    ExecStart=/home/arash/Desktop/task1/domain_info.sh -f /home/arash/Desktop/task1/domains
+
+    [Install]
+    WantedBy=multi-user.target
+
+### Timer
+    [Unit]
+    Description=This timer runs task1.service every minute
+    Requires=task1.service
+
+    [Timer]
+    Unit=task1.service
+    OnCalendar=*-*-* *:*:00
+
+    [Install]
+    WantedBy=timers.target

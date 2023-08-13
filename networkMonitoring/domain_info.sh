@@ -5,7 +5,7 @@ db_host="localhost"
 db_port="5432"
 db_name="network"
 db_user="postgres"
-db_pass=$(cat dbPass)
+db_pass=$(cat /home/arash/Desktop/task1/dbPass)
 
 function getPing() {
     ping -c $ping_count $1 > domain_info
@@ -20,6 +20,7 @@ function getPing() {
     INSERT INTO domain_info (domain_name, ip_address, jitter, packet_loss, avg_ping_time)
     VALUES ('$1', '$ip', $jitter, $packet_loss, $avg_ping);
 EOF
+    echo "inserted $1 $ip"
 }
 
 while getopts "c:d:f:" opt; do
